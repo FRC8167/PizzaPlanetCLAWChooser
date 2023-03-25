@@ -26,7 +26,7 @@ public class Pivot_MM extends SubsystemBase {
 
 
 	/* Used to build string throughout loop */
-	StringBuilder _sb = new StringBuilder();
+	//StringBuilder _sb = new StringBuilder();
 
 	/** Creates a new Pivot_MM. */
 	public Pivot_MM() {
@@ -96,19 +96,19 @@ public class Pivot_MM extends SubsystemBase {
 	@Override
 	public void periodic() {
 		SmartDashboard.putNumber("Current Deg", my_getDeg());
-		double motorOutput = _talon.getMotorOutputPercent();
+		//double motorOutput = _talon.getMotorOutputPercent();
 
 		/* Prepare line to print */
-		_sb.append("\tOut%:");
-		_sb.append(motorOutput);
-		_sb.append("\tVel:");
-		_sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
-		// This method will be called once per scheduler run
-		/* Append more signals to print when in speed mode */
-		_sb.append("\terr:");
-		_sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
-		_sb.append("\ttrg:");
-		_sb.append(m_targetPos);
+		// _sb.append("\tOut%:");
+		// _sb.append(motorOutput);
+		// _sb.append("\tVel:");
+		// _sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
+		// // This method will be called once per scheduler run
+		// /* Append more signals to print when in speed mode */
+		// _sb.append("\terr:");
+		// _sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
+		// _sb.append("\ttrg:");
+		// _sb.append(m_targetPos);
 
 		/* Instrumentation */
 		//Instrum.Process(_talon, _sb);

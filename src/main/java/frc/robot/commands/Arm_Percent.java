@@ -10,6 +10,8 @@ import frc.robot.subsystems.Arm_MM;
 public class Arm_Percent extends CommandBase {
   private final Arm_MM m_Arm;
   private double m_setpoint;
+
+
   /** Creates a new Arm_Percent. */
   public Arm_Percent(double setpoint, Arm_MM subsystem) {
     m_setpoint = setpoint;
@@ -37,7 +39,9 @@ public class Arm_Percent extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_Arm.DisableRetractMotion();
+    //Check for extension limit??
+    //return false;
   }
 
 }
