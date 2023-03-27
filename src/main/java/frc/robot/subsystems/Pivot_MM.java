@@ -12,6 +12,7 @@ import frc.robot.Constants;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 public class Pivot_MM extends SubsystemBase {
@@ -20,6 +21,13 @@ public class Pivot_MM extends SubsystemBase {
 	private static double MOTOR_COUNTS_PER_REV = 2048;
 	private double ForwardSoftLimitThreshold = deg_To_Raw_Sensor_Counts(75);
 	private double ReverseSoftLimitThreshold = deg_To_Raw_Sensor_Counts(0);
+
+	final double maxSetpoint_deg = 75.0;
+	final double minSetpoint_deg = 0.0;
+
+
+	// private double maxSetpoint_raw = deg_To_Raw_Sensor_Counts(maxSetpoint_deg);
+	// private double minSetpoint_raw = deg_To_Raw_Sensor_Counts(minSetpoint_deg);
 	
 	WPI_TalonFX _talon = new WPI_TalonFX(Constants.PIVOT_MOTOR, "rio"); // Rename "rio" to match the CANivore device name if using a
 													// CANivore
@@ -97,6 +105,9 @@ public class Pivot_MM extends SubsystemBase {
 	public void periodic() {
 		SmartDashboard.putNumber("Current Deg", my_getDeg());
 		SmartDashboard.putNumber("pivot encoder", _talon.getSelectedSensorPosition());
+
+		SmartDashboard.putNumber("Pivot Sensor [counts]", m_sensorPos);
+		SmartDashboard.putNumber("Pivot Angle [deg]", m_angle);
 		//double motorOutput = _talon.getMotorOutputPercent();
 
 		/* Prepare line to print */
@@ -122,8 +133,19 @@ public class Pivot_MM extends SubsystemBase {
 	 * 
 	 * @param deg
 	 */
-	public void my_motionMagic_Run(double deg) {
+	private double clampSetpointValue_Deg(double value)  {
+
+		if (value > maxSetpoint_deg)  {
+			return maxSetpoint_deg;
+		}  else if (value < minSetpoint_deg)  {
+			return minSetpoint_deg;
+		}
+	}
+	
+	
+	 public void my_motionMagic_Run(double deg) {
 		/* Motion Magic */
+		deg = clampSetpointValue_Deg(deg);
 		m_targetPos = deg;
 		
 		/* 2048 ticks/rev * 10 Rotations in either direction */
@@ -131,6 +153,11 @@ public class Pivot_MM extends SubsystemBase {
 		_talon.set(TalonFXControlMode.MotionMagic, targetPos);
 
 	}
+
+	// public void my_Arm_Stop() {
+	// 	_talon.set(ControlMode.PercentOutput, 0.0);
+	// }
+
 
 	/**
 	 * input -1 to 1
@@ -148,6 +175,10 @@ public class Pivot_MM extends SubsystemBase {
 	public double my_getDeg() {
 		return raw_Sensor_Counts_To_Deg(_talon.getSelectedSensorPosition());// * 360 / (GEAR_RATIO * MOTOR_COUNTS_PER_REV);
 	}
+
+	
+
+
 
 	/**
 	 * Test if in position
@@ -174,4 +205,31 @@ public class Pivot_MM extends SubsystemBase {
 	private double deg_To_Raw_Sensor_Counts(double deg){
 		return deg / 360 * MOTOR_COUNTS_PER_REV * GEAR_RATIO;
 	}
+
+
+	private double my_getCurrentPivotAngle()  {
+		final double m_sensorPos = _talon.getSelectedSensorPosition(0);
+		final double m_angle = raw_Sensor_Counts_To_Deg(m_sensorPos);
+		SmartDashboard.putNumber("Pivot Sensor [counts]", m_sensorPos);
+		SmartDashboard.putNumber("Pivot Angle [deg]", m_angle);
+		return m_angle;
+	}
+
+	public double get_My_CurrentRAW_Position() {
+		return _talon.getSelectedSensorPosition(0);
+	}
+
+	public void set_pivotToCurrent()  {
+		_talon.set(ControlMode.Position, get_My_CurrentRAW_Position());
+	}
+
+	public double get_MaxAngle() {
+		return maxSetpoint_deg;
+	}
+
+	public double get_minAngle()  {
+		return minSetpoint_deg;
+	}
+
+
 }
