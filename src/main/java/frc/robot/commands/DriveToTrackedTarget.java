@@ -99,15 +99,15 @@ public class DriveToTrackedTarget extends CommandBase {
       }
       drivetrain.tankDrive(leftDriveRate, rightDriveRate);
 
-      System.out.println("TargetArea: " + desiredDistanceToTarget);
-      System.out.println("CurrentArea: " + translationValue);
-      System.out.println("Distance:  " + desiredDistanceToTarget);
-      System.out.println("RotationalError:  " + rotationalError);
-      System.out.println("TranslationalError:  " + translationalError);
-      System.out.println("RotationalValue:  " + rotationValue);
-      System.out.println("TranslationalValye:  " + translationValue);
-      System.out.println("LeftDriveRate:  " + leftDriveRate);
-      System.out.println("RightDriveRate:  " + rightDriveRate);
+      // System.out.println("TargetArea: " + desiredDistanceToTarget);
+      // System.out.println("CurrentArea: " + translationValue);
+      // System.out.println("Distance:  " + desiredDistanceToTarget);
+      // System.out.println("RotationalError:  " + rotationalError);
+      // System.out.println("TranslationalError:  " + translationalError);
+      // System.out.println("RotationalValue:  " + rotationValue);
+      // System.out.println("TranslationalValye:  " + translationValue);
+      // System.out.println("LeftDriveRate:  " + leftDriveRate);
+      // System.out.println("RightDriveRate:  " + rightDriveRate);
     }
     }  else {
       drivetrain.stop();

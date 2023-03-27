@@ -68,6 +68,10 @@ public final class Constants {
   public static final int DRIVER_CONTROLLER = 0;
   public static final int EXTREME_CONTROLLER = 1;
 
+  //MANUAL CONTROL POWER VALUES
+  public static final double MANUAL_ARM_POWER = 0.6;
+  public static final double MANUAL_PIVOT_POWER = 0.1;
+
 
 
 

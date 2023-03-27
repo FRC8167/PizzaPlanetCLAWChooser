@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -20,13 +21,15 @@ public class Arm_MM extends SubsystemBase {
 	// private static double MOTOR_COUNTS_PER_REV = 2048;
 	private double ForwardSoftLimitThreshold = inches_To_Raw_Sensor_Counts(42);
 	private double ReverseSoftLimitThreshold = inches_To_Raw_Sensor_Counts(-0.125);
+
+	private DigitalInput _retractSensor;
 	
 	WPI_TalonFX _talon = new WPI_TalonFX(Constants.ARM_MOTOR, "rio"); // Rename "rio" to match the CANivore device name if using a
 													// CANivore
 
 
 	/* Used to build string throughout loop */
-	StringBuilder _sb = new StringBuilder();
+	//StringBuilder _sb = new StringBuilder();
 
 	/** Creates a new Arm_MM. */
 	public Arm_MM() {
@@ -79,8 +82,8 @@ public class Arm_MM extends SubsystemBase {
 		_talon.config_kD(Constants.kSlotIdx, 0.05, Constants.kTimeoutMs);
 
 		/* Set acceleration and vcruise velocity - see documentation */
-		_talon.configMotionCruiseVelocity(22000, Constants.kTimeoutMs);
-		_talon.configMotionAcceleration(22000, Constants.kTimeoutMs);
+		_talon.configMotionCruiseVelocity(18000, Constants.kTimeoutMs);
+		_talon.configMotionAcceleration(12000, Constants.kTimeoutMs);
 
 		/* Zero the sensor once on robot boot up */
 		_talon.setSelectedSensorPosition(0, Constants.kPIDLoopIdx, Constants.kTimeoutMs);
@@ -91,24 +94,37 @@ public class Arm_MM extends SubsystemBase {
 		_talon.configReverseSoftLimitThreshold(ReverseSoftLimitThreshold, Constants.kTimeoutMs);
 		_talon.configReverseSoftLimitEnable(true, 0);
 		// _talon.configClearPositionOnLimitR(true, 0);
+
+		// Assign optical sensor to digital channel 0 
+		_retractSensor = new DigitalInput(0);
 	}
 
 	@Override
 	public void periodic() {
+		double vel;
+		double pos;
+		vel = _talon.getSelectedSensorVelocity();
+		pos = _talon.getSelectedSensorPosition();
+		if(DisableRetractMotion()) my_PercentOutput_Run(0);
 		SmartDashboard.putNumber("Current Inches", my_getInches());
-		double motorOutput = _talon.getMotorOutputPercent();
+		SmartDashboard.putNumber("Arm Encoder", pos);
+		SmartDashboard.putBoolean("Retract Allowed", retractAllowed());
+		SmartDashboard.putNumber("Arm Velocity", vel);
+
+		
+		// double motorOutput = _talon.getMotorOutputPercent();
 
 		/* Prepare line to print */
-		_sb.append("\tOut%:");
-		_sb.append(motorOutput);
-		_sb.append("\tVel:");
-		_sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
-		// This method will be called once per scheduler run
-		/* Append more signals to print when in speed mode */
-		_sb.append("\terr:");
-		_sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
-		_sb.append("\ttrg:");
-		_sb.append(m_targetPos);
+		// _sb.append("\tOut%:");
+		// _sb.append(motorOutput);
+		// _sb.append("\tVel:");
+		// _sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
+		// // This method will be called once per scheduler run
+		// /* Append more signals to print when in speed mode */
+		// _sb.append("\terr:");
+		// _sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
+		// _sb.append("\ttrg:");
+		// _sb.append(m_targetPos);
 
 		/* Instrumentation */
 		//Instrum.Process(_talon, _sb);
@@ -128,7 +144,6 @@ public class Arm_MM extends SubsystemBase {
 		/* 2048 ticks/rev * 10 Rotations in either direction */
 		double targetPos = inches_To_Raw_Sensor_Counts(inches);// / 360 * MOTOR_COUNTS_PER_REV * GEAR_RATIO;
 		_talon.set(TalonFXControlMode.MotionMagic, targetPos);
-
 	}
 
 	/**
@@ -153,19 +168,6 @@ public class Arm_MM extends SubsystemBase {
 	 * 
 	 * @param setpoint // in inches
 	 * 
-	 * 
-
-
-
-
-
-
-
-
-
-
-
-
 	 * @return
 	 */
 	public boolean my_get_PositionLock(double setpoint) {
@@ -188,5 +190,25 @@ public class Arm_MM extends SubsystemBase {
 	private double inches_To_Raw_Sensor_Counts(double inches){
 		return inches * 12635.203 - 3861;
 		//return inches / 360 * MOTOR_COUNTS_PER_REV * GEAR_RATIO;
+	}
+
+	/**
+	 * Check if retract limit has been reached
+	 * 
+	 * @return True if retract motion is NOT allowed
+	 */
+	public boolean DisableRetractMotion(){
+		double sensorvelocity;
+		sensorvelocity = _talon.getSelectedSensorVelocity();
+		return (!_retractSensor.get() && sensorvelocity < 0 ); // _talon.getMotorOutputPercent() < 0);
+	}
+
+	/**
+	 * Get retract sensor state
+	 * 
+	 * @return True if retract motion is allowed 
+	 */
+	public boolean retractAllowed(){
+		return _retractSensor.get();
 	}
 }

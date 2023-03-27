@@ -45,7 +45,7 @@ public class RotateAngle extends CommandBase {
   private boolean isTurnMotionMagicDone() {
     double sensorDistance = drivetrain.getLeadRightSensorPosition();
     double error = sensorDistance - distance;
-    System.out.println(" Right Front Drive Sensor ="+ sensorDistance + ", arcLength Ticks= " + distance);
+    //System.out.println(" Right Front Drive Sensor ="+ sensorDistance + ", arcLength Ticks= " + distance);
     double percentErr = Math.abs(error)/Math.abs(distance);
     if(percentErr < 0.01)  {
       return true;
@@ -55,7 +55,7 @@ public class RotateAngle extends CommandBase {
       return true;
     }
 
-    System.out.println(" Rotate percent error = "+percentErr +", turn time passed = "+timepassed);
+    //System.out.println(" Rotate percent error = "+percentErr +", turn time passed = "+timepassed);
 
     return false;
   }

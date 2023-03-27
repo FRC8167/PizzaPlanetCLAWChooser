@@ -30,9 +30,9 @@ public class ChargingStationAutoBalance extends CommandBase {
     this.currentPitchAngle = -drivetrain.getPitch();
     error = currentPitchAngle - Constants.BALANCE_GOAL_DEGREE ;
     drivePower = Math.min(0.025 * error, 1);  //change value once set to Constants. BALANCE_KP
-    System.out.println("Current Pitch Angle: " + currentPitchAngle);
-    System.out.println("Pitch Error: " + error);
-    System.out.println("Balancing Drive Power: " + drivePower);
+    // System.out.println("Current Pitch Angle: " + currentPitchAngle);
+    // System.out.println("Pitch Error: " + error);
+    // System.out.println("Balancing Drive Power: " + drivePower);
 
     //Just in case more or less power is needed for a backwards approach to charging station
     //This may be required due to back/front weight imbalance

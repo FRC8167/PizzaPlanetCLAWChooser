@@ -5,11 +5,15 @@
 package frc.robot;
 
 import frc.robot.commands.ArcadeDrive;
+import frc.robot.commands.Arm_Percent;
 import frc.robot.commands.Arm_To_Setpoint;
 //import frc.robot.commands.Autos;
 import frc.robot.commands.ChargingStationAutoBalance;
+import frc.robot.commands.AcquireGamePiece;
 import frc.robot.commands.DriveForwardDistance;
 import frc.robot.commands.DriveToTrackedTarget;
+import frc.robot.commands.NestArm;
+import frc.robot.commands.Pivot_Percent;
 //import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.Pivot_To_Setpoint;
 import frc.robot.commands.RotateAngle;
@@ -98,30 +102,29 @@ public class RobotContainer {
     driverController.rightTrigger().onFalse(new InstantCommand(()-> drivetrain.toggleSnailSpeed()));
 
 
-    //EXTREME CONTROLLER
-    
     extremeController.button(1).onTrue(new InstantCommand(() -> grabber.toggle()));
-    extremeController.button(9).onTrue(new SequentialCommandGroup(
-      new Pivot_To_Setpoint(56, m_pivot_MM),
-      new WaitCommand(0.5), 
-      //new Pivot_To_Setpoint(58, m_pivot_MM),
-      new Arm_To_Setpoint(20, m_arm_MM),
-      new WaitCommand(0.0),
-      new InstantCommand(() -> grabber.openGrabber()),
-      new WaitCommand(0.0)
-    ));
+    //MANUAL RETRACT3/EXTEND4
+  
+    extremeController.button(3).whileTrue(new Arm_Percent(-Constants.MANUAL_ARM_POWER, m_arm_MM));
+    extremeController.button(3).onFalse(new Arm_Percent(0.0, m_arm_MM));
+    extremeController.button(4).whileTrue(new Arm_Percent(Constants.MANUAL_ARM_POWER, m_arm_MM));
+    extremeController.button(4).onFalse(new Arm_Percent(0.0, m_arm_MM));
+    
+    extremeController.button(5).whileTrue(new Pivot_Percent(-Constants.MANUAL_PIVOT_POWER, m_pivot_MM));
+    extremeController.button(5).onFalse(new Pivot_Percent(0.0, m_pivot_MM));
+    extremeController.button(6).whileTrue(new Pivot_Percent(Constants.MANUAL_PIVOT_POWER, m_pivot_MM));
+    extremeController.button(6).onFalse(new Pivot_Percent(0.0, m_pivot_MM));  
 
-    extremeController.button(7).onTrue(new Arm_To_Setpoint(30, m_arm_MM));
-    extremeController.button(8).onTrue(new Pivot_To_Setpoint(56, m_pivot_MM));
-
-    extremeController.button(3).onTrue(new Arm_To_Setpoint(1, m_arm_MM));
-    extremeController.button(4).onTrue(new Pivot_To_Setpoint(5, m_pivot_MM));
-
-    extremeController.button(10).onTrue(new SequentialCommandGroup(
-      new Arm_To_Setpoint(1, m_arm_MM),
-      new Pivot_To_Setpoint(5, m_pivot_MM),
-      new InstantCommand(() -> grabber.closeGrabber())
-    ));
+    extremeController.button(7).onTrue(new AcquireGamePiece(68.25, 10.0, m_pivot_MM, m_arm_MM, grabber));
+    //HUMAN PLAYER
+    extremeController.button(8).onTrue(new AcquireGamePiece(60.0, 21.0, m_pivot_MM, m_arm_MM, grabber));
+    //MID LEVEL
+    extremeController.button(9).onTrue(new AcquireGamePiece(75.0, 35.0, m_pivot_MM, m_arm_MM, grabber));
+    //HIGH LEVEL
+    extremeController.button(10).onTrue(new NestArm(5.0, 1.0, m_pivot_MM, m_arm_MM));
+    //NEST
+    extremeController.button(11).onTrue(new Arm_To_Setpoint(30, m_arm_MM));
+    extremeController.button(2).onTrue(new Arm_To_Setpoint(10, m_arm_MM));
 
     extremeController.button(12).onTrue(
       new ParallelCommandGroup(
@@ -129,16 +132,8 @@ public class RobotContainer {
         new InstantCommand(() -> m_pivot_MM.my_resetEncoder())
       )
     );
-   //extremeController.button(3).whileTrue(new ManualRetract(arm, -Constants.ARM_POWER));
-    //extremeController.button(3).onFalse(new InstantCommand(() -> arm.stop()));
-    //extremeController.button(4).whileTrue(new ManualExtend(arm, Constants.ARM_POWER));
-    //extremeController.button(4).onFalse(new InstantCommand(() -> arm.stop()));
-    //MANUAL CONTROL:  LOWER/RAISE PIVOT ARM
-    //extremeController.button(5).whileTrue(new ManualPivotDown(pivot, -Constants.PIVOT_POWER));
-    //extremeController.button(5).onFalse(new InstantCommand(() -> pivot.stop()));
-    //extremeController.button(6).whileTrue(new ManualPivotUp(pivot, Constants.PIVOT_POWER));
-    //extremeController.button(6).onFalse(new InstantCommand(() -> arm.stop()));  
-    //MANUALLY ZERO ARM AND PIVOT SENSORS
+   
+ 
 
 
 
@@ -149,18 +144,18 @@ public class RobotContainer {
     autoCommandSelector.setDefaultOption(
       "Auto Center",
       new SequentialCommandGroup(
-        new InstantCommand(() -> m_arm_MM.my_resetEncoder()),
+        // new InstantCommand(() -> m_arm_MM.my_resetEncoder()),
+        // new WaitCommand(0.1),
+        // new InstantCommand(() -> m_pivot_MM.my_resetEncoder()),
+        // new WaitCommand(0.1),
+        new Pivot_To_Setpoint(75, m_pivot_MM).withTimeout(1.5),
         new WaitCommand(0.1),
-        new InstantCommand(() -> m_pivot_MM.my_resetEncoder()),
-        new WaitCommand(0.1),
-        new Pivot_To_Setpoint(70, m_pivot_MM),
-        new WaitCommand(0.5),
-        new Arm_To_Setpoint(37, m_arm_MM),
+        new Arm_To_Setpoint(35, m_arm_MM),
         new WaitCommand(0.0),
         new InstantCommand(() -> grabber.openGrabber()),
         new WaitCommand(0.0),
-        new Arm_To_Setpoint(10.0, m_arm_MM),
-        new WaitCommand(1.0),
+        new Arm_To_Setpoint(2.0, m_arm_MM).withTimeout(3.0),
+        new WaitCommand(0.1),
         new InstantCommand(() -> grabber.closeGrabber()),
         new WaitCommand(0.0),
 
