@@ -101,30 +101,11 @@ public class Arm_MM extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		double vel;
-		double pos;
-		vel = _talon.getSelectedSensorVelocity();
-		pos = _talon.getSelectedSensorPosition();
-		if(DisableRetractMotion()) my_PercentOutput_Run(0);
 		SmartDashboard.putNumber("Current Inches", my_getInches());
-		SmartDashboard.putNumber("Arm Encoder", pos);
-		SmartDashboard.putBoolean("Retract Allowed", retractAllowed());
-		SmartDashboard.putNumber("Arm Velocity", vel);
-
-		
-		// double motorOutput = _talon.getMotorOutputPercent();
+		double motorOutput = _talon.getMotorOutputPercent();
 
 		/* Prepare line to print */
-		// _sb.append("\tOut%:");
-		// _sb.append(motorOutput);
-		// _sb.append("\tVel:");
-		// _sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
-		// // This method will be called once per scheduler run
-		// /* Append more signals to print when in speed mode */
-		// _sb.append("\terr:");
-		// _sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
-		// _sb.append("\ttrg:");
-		// _sb.append(m_targetPos);
+	
 
 		/* Instrumentation */
 		//Instrum.Process(_talon, _sb);
@@ -190,25 +171,5 @@ public class Arm_MM extends SubsystemBase {
 	private double inches_To_Raw_Sensor_Counts(double inches){
 		return inches * 12635.203 - 3861;
 		//return inches / 360 * MOTOR_COUNTS_PER_REV * GEAR_RATIO;
-	}
-
-	/**
-	 * Check if retract limit has been reached
-	 * 
-	 * @return True if retract motion is NOT allowed
-	 */
-	public boolean DisableRetractMotion(){
-		double sensorvelocity;
-		sensorvelocity = _talon.getSelectedSensorVelocity();
-		return (!_retractSensor.get() && sensorvelocity < 0 ); // _talon.getMotorOutputPercent() < 0);
-	}
-
-	/**
-	 * Get retract sensor state
-	 * 
-	 * @return True if retract motion is allowed 
-	 */
-	public boolean retractAllowed(){
-		return _retractSensor.get();
 	}
 }
